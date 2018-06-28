@@ -28,7 +28,7 @@
   "scripts": {
     "dev": "",
     "test": "",
-    "lint": "eslint -c .eslintrc.json src/*",
+    "lint": "eslint -c .eslintrc.json src/* && flow check",
     "build": "yarn build:cjs && yarn build:es && yarn build:iife",
     "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir cjs --copy-files",
     "build:es": "cross-env NODE_ENV=es babel src --out-dir es --copy-files",

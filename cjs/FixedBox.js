@@ -10,6 +10,8 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _helpers = require('./helpers');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -18,8 +20,14 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var FixedBox = function (_React$Component) {
-  _inherits(FixedBox, _React$Component);
+var ERROR_PREFIX = '[FixedBox]';
+var events = {
+  SCROLL: 'scroll',
+  RESIZE: 'resize'
+};
+
+var FixedBox = function (_Component) {
+  _inherits(FixedBox, _Component);
 
   function FixedBox() {
     var _ref;
@@ -36,26 +44,27 @@ var FixedBox = function (_React$Component) {
       isFixed: false
     }, _this.$container = null, _this.handleContainerRef = function ($node) {
       _this.$container = $node;
-    }, _this.updatePosition = function (_ref2) {
-      var setFixed = _ref2.setFixed,
-          _ref2$minTopPos = _ref2.minTopPos,
-          minTopPos = _ref2$minTopPos === undefined ? -Infinity : _ref2$minTopPos,
-          _ref2$minLeftPos = _ref2.minLeftPos,
-          minLeftPos = _ref2$minLeftPos === undefined ? -Infinity : _ref2$minLeftPos;
+    }, _this.updatePosition = function () {
+      var _this2 = _this,
+          $container = _this2.$container;
 
-      if (!$ref) return;
+      if ((0, _helpers.isNull)($container)) return;
 
       // $FlowFixMe
-      var floatContainer = $ref.firstElementChild;
+      var $child = $container.firstElementChild;
+      if ((0, _helpers.isNull)($child)) return;
 
-      if (!floatContainer) return;
+      var isFixed = _this.state.isFixed;
+      var _this$props = _this.props,
+          minTopPos = _this$props.minTopPos,
+          minLeftPos = _this$props.minLeftPos;
 
-      var _$ref$getBoundingClie = $ref.getBoundingClientRect(),
-          top = _$ref$getBoundingClie.top,
-          left = _$ref$getBoundingClie.left;
+      var _$container$getBoundi = $container.getBoundingClientRect(),
+          top = _$container$getBoundi.top,
+          left = _$container$getBoundi.left;
 
-      var width = floatContainer.offsetWidth;
-      var height = floatContainer.offsetHeight;
+      var width = $child.offsetWidth;
+      var height = $child.offsetHeight;
       var shouldFixTop = top <= minTopPos;
       var shouldFixLeft = left <= minLeftPos;
       var shouldFix = shouldFixTop || shouldFixLeft;
@@ -66,35 +75,68 @@ var FixedBox = function (_React$Component) {
 
       if (shouldFix) {
         position = 'fixed';
-        $ref.style.width = width + 'px';
-        $ref.style.height = height + 'px';
+        $container.style.width = width + 'px';
+        $container.style.height = height + 'px';
       } else {
         position = 'relative';
-        $ref.style.width = '';
-        $ref.style.height = '';
+        $container.style.width = '';
+        $container.style.height = '';
       }
 
       if (shouldFixTop) {
-        posTop = isNumber(minTopPos) ? minTopPos : top;
+        posTop = (0, _helpers.isNumber)(minTopPos) ? minTopPos : top;
       } else {
         posTop = shouldFixLeft ? top : 0;
       }
 
       if (shouldFixLeft) {
-        posLeft = isNumber(minLeftPos) ? minLeftPos : left;
+        posLeft = (0, _helpers.isNumber)(minLeftPos) ? minLeftPos : left;
       } else {
         posLeft = shouldFixTop ? left : 0;
       }
 
-      floatContainer.style.position = position;
-      floatContainer.style.left = posLeft + 'px';
-      floatContainer.style.top = posTop + 'px';
+      $child.style.position = position;
+      $child.style.left = posLeft + 'px';
+      $child.style.top = posTop + 'px';
 
-      setFixed(shouldFix);
+      if (shouldFix !== isFixed) {
+        _this.setState({ isFixed: shouldFix });
+      }
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(FixedBox, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var updatePosition = this.updatePosition;
+
+
+      updatePosition();
+      document.addEventListener(events.SCROLL, updatePosition, true);
+      window.addEventListener(events.RESIZE, updatePosition, true);
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      var updatePosition = this.updatePosition;
+
+
+      document.removeEventListener(events.SCROLL, updatePosition, true);
+      window.removeEventListener(events.RESIZE, updatePosition, true);
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      var $container = this.$container;
+
+
+      if ((0, _helpers.isNull)($container)) {
+        throw new Error(
+        // eslint-disable-next-line max-len
+        ERROR_PREFIX + ': <FixedBox /> component should have exactly one child element');
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var isFixed = this.state.isFixed;
@@ -106,15 +148,17 @@ var FixedBox = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         { ref: this.handleContainerRef, className: className },
-        typeof children === 'function' ? children(isFixed) : children
+        (0, _helpers.isFunc)(children) ? children(isFixed) : children
       );
     }
   }]);
 
   return FixedBox;
-}(_react2.default.Component);
+}(_react.Component);
 
 FixedBox.defaultProps = {
-  className: ''
+  className: '',
+  minTopPos: -Infinity,
+  minLeftPos: -Infinity
 };
 exports.default = FixedBox;

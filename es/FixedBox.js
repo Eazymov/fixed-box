@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-class FixedBox extends React.Component {
+import { isNull, isFunc, isNumber } from './helpers';
+
+const ERROR_PREFIX = '[FixedBox]';
+const events = {
+  SCROLL: 'scroll',
+  RESIZE: 'resize'
+};
+
+class FixedBox extends Component {
   constructor(...args) {
     var _temp;
 
@@ -8,21 +16,19 @@ class FixedBox extends React.Component {
       isFixed: false
     }, this.$container = null, this.handleContainerRef = $node => {
       this.$container = $node;
-    }, this.updatePosition = ({
-      setFixed,
-      minTopPos = -Infinity,
-      minLeftPos = -Infinity
-    }) => {
-      if (!$ref) return;
+    }, this.updatePosition = () => {
+      const { $container } = this;
+      if (isNull($container)) return;
 
       // $FlowFixMe
-      const floatContainer = $ref.firstElementChild;
+      const $child = $container.firstElementChild;
+      if (isNull($child)) return;
 
-      if (!floatContainer) return;
-
-      const { top, left } = $ref.getBoundingClientRect();
-      const width = floatContainer.offsetWidth;
-      const height = floatContainer.offsetHeight;
+      const { isFixed } = this.state;
+      const { minTopPos, minLeftPos } = this.props;
+      const { top, left } = $container.getBoundingClientRect();
+      const width = $child.offsetWidth;
+      const height = $child.offsetHeight;
       const shouldFixTop = top <= minTopPos;
       const shouldFixLeft = left <= minLeftPos;
       const shouldFix = shouldFixTop || shouldFixLeft;
@@ -33,12 +39,12 @@ class FixedBox extends React.Component {
 
       if (shouldFix) {
         position = 'fixed';
-        $ref.style.width = `${width}px`;
-        $ref.style.height = `${height}px`;
+        $container.style.width = `${width}px`;
+        $container.style.height = `${height}px`;
       } else {
         position = 'relative';
-        $ref.style.width = '';
-        $ref.style.height = '';
+        $container.style.width = '';
+        $container.style.height = '';
       }
 
       if (shouldFixTop) {
@@ -53,12 +59,39 @@ class FixedBox extends React.Component {
         posLeft = shouldFixTop ? left : 0;
       }
 
-      floatContainer.style.position = position;
-      floatContainer.style.left = `${posLeft}px`;
-      floatContainer.style.top = `${posTop}px`;
+      $child.style.position = position;
+      $child.style.left = `${posLeft}px`;
+      $child.style.top = `${posTop}px`;
 
-      setFixed(shouldFix);
+      if (shouldFix !== isFixed) {
+        this.setState({ isFixed: shouldFix });
+      }
     }, _temp;
+  }
+
+  componentDidMount() {
+    const { updatePosition } = this;
+
+    updatePosition();
+    document.addEventListener(events.SCROLL, updatePosition, true);
+    window.addEventListener(events.RESIZE, updatePosition, true);
+  }
+
+  componentWillUnmount() {
+    const { updatePosition } = this;
+
+    document.removeEventListener(events.SCROLL, updatePosition, true);
+    window.removeEventListener(events.RESIZE, updatePosition, true);
+  }
+
+  componentDidUpdate() {
+    const { $container } = this;
+
+    if (isNull($container)) {
+      throw new Error(
+      // eslint-disable-next-line max-len
+      `${ERROR_PREFIX}: <FixedBox /> component should have exactly one child element`);
+    }
   }
 
   render() {
@@ -68,12 +101,14 @@ class FixedBox extends React.Component {
     return React.createElement(
       'div',
       { ref: this.handleContainerRef, className: className },
-      typeof children === 'function' ? children(isFixed) : children
+      isFunc(children) ? children(isFixed) : children
     );
   }
 }
 
 FixedBox.defaultProps = {
-  className: ''
+  className: '',
+  minTopPos: -Infinity,
+  minLeftPos: -Infinity
 };
 export default FixedBox;
