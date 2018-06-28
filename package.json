@@ -1,6 +1,6 @@
 {
   "name": "fixed-box",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Fixed box component for React",
   "main": "cjs/index.js",
   "module": "es/index.js",
@@ -18,10 +18,17 @@
     "name": "Eduard Troshin",
     "email": "eazymovcode@gmail.com"
   },
+  "keywords": [
+    "react",
+    "fixed",
+    "box",
+    "sticky",
+    "component"
+  ],
   "scripts": {
     "dev": "",
     "test": "",
-    "lint": "eslint -c .eslintrc.json src/*",
+    "lint": "eslint -c .eslintrc.json src/* && flow check",
     "build": "yarn build:cjs && yarn build:es && yarn build:iife",
     "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir cjs --copy-files",
     "build:es": "cross-env NODE_ENV=es babel src --out-dir es --copy-files",
