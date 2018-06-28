@@ -18,6 +18,13 @@
     "name": "Eduard Troshin",
     "email": "eazymovcode@gmail.com"
   },
+  "keywords": [
+    "react",
+    "fixed",
+    "box",
+    "sticky",
+    "component"
+  ],
   "scripts": {
     "dev": "",
     "test": "",
