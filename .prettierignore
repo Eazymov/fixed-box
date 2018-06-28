@@ -1,0 +1,8 @@
+dist/
+cjs/
+es/
+rollup.config.js
+package.json
+CONTRIBUTING.md
+CHANGELOG.md
+README.md

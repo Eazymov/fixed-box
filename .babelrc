@@ -1,0 +1,30 @@
+{
+  "env": {
+    "cjs": {
+      "presets": [
+        [
+          "env",
+          {
+            "modules": false
+          }
+        ],
+        "flow",
+        "react"
+      ],
+      "plugins": [
+        "transform-es2015-modules-commonjs",
+        "transform-class-properties"
+      ]
+    },
+
+    "es": {
+      "presets": ["flow", "react"],
+      "plugins": ["transform-class-properties"]
+    },
+
+    "iife": {
+      "presets": ["es2015-rollup", "flow", "react"],
+      "plugins": ["transform-class-properties"]
+    }
+  }
+}
