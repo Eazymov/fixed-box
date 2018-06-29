@@ -57,6 +57,8 @@ class FixedBox extends Component<Props, State> {
         `${ERROR_PREFIX}: <FixedBox /> component should have exactly one child element`,
       )
     }
+
+    this.updatePosition()
   }
 
   handleContainerRef = ($node: null | HTMLElement) => {
