@@ -45,19 +45,19 @@ yarn add fixed-box
 ### className
 
 FixedBox container element class name\
-**type**: string\
+**type**: `string` \
 **required**: none
 
 ### minTopPos
 
 Minimal top position for the child element\
-**type**: number\
+**type**: `number` \
 **required**: none
 
 ### minLeftPos
 
 Minimal left position for the child element\
-**type**: number\
+**type**: `number` \
 **required**: none
 
 ### children
