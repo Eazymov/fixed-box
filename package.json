@@ -26,8 +26,6 @@
     "component"
   ],
   "scripts": {
-    "dev": "",
-    "test": "",
     "lint": "eslint -c .eslintrc.json src/* && flow check",
     "build": "yarn build:cjs && yarn build:es && yarn build:iife",
     "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir cjs --copy-files",
@@ -54,7 +52,7 @@
     "eslint-plugin-flowtype": "^2.49.3",
     "eslint-plugin-react": "^7.10.0",
     "flow-bin": "^0.75.0",
-    "husky": "^0.14.3",
+    "husky": "^1.0.0-rc.9",
     "rollup": "^0.62.0",
     "rollup-plugin-babel": "^3.0.5",
     "rollup-plugin-node-resolve": "^3.3.0",
