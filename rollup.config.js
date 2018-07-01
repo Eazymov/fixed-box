@@ -38,7 +38,6 @@ export default {
     banner,
     format: 'iife',
     name: 'FixedBox',
-    exports: 'named',
     globals: {
       react: 'React',
     },
