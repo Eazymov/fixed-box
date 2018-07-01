@@ -44,26 +44,26 @@ yarn add fixed-box
 
 ### className
 
-FixedBox container element class name
-type: string
+FixedBox container element class name\
+type: string\
 required: none
 
 ### minTopPos
 
-Minimal top position for the child element
-type: number
+Minimal top position for the child element\
+type: number\
 required: none
 
 ### minLeftPos
 
-Minimal left position for the child element
-type: number
+Minimal left position for the child element\
+type: number\
 required: none
 
 ### children
 
-React node or function that returns react node and takes `isFixed` boolean value as argument
-type: `React$Node | (isFixed: boolean) => React$Node`
+React node or function that returns react node and takes `isFixed` boolean value as argument\
+type: `React$Node | (isFixed: boolean) => React$Node` \
 required: none
 
 ## Questions
