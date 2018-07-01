@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [0.1.1 - 2018-07.01]
 
+- Update position on props change
 - Update readme
 - Add iife build for including via `<script />` tag
 
