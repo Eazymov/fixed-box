@@ -4,5 +4,6 @@
 - `> git clone`
 - `> yarn install`
 - Make your changes
+- `> yarn lint`
 - Update CHANGELOG.md
-- Commit and Make a pull request
+- Commit and make a pull request
