@@ -14,6 +14,20 @@
 
 ## Installation
 
+### Direct `<script />` include
+
+The library will be exposed as a global `FixedBox` variable
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/fixed-box@latest"></script>
+```
+
+**or** via unpkg
+
+```html
+<script src="https://unpkg.com/fixed-box@latest"></script>
+```
+
 ### NPM
 
 ```bash
