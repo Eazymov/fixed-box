@@ -18,7 +18,16 @@
     },
 
     "es": {
-      "presets": ["flow", "react"],
+      "presets": [
+        [
+          "env",
+          {
+            "modules": false
+          }
+        ],
+        "flow",
+        "react"
+      ],
       "plugins": ["transform-class-properties"]
     },
 
