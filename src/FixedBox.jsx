@@ -40,16 +40,16 @@ class FixedBox extends Component<Props, State> {
   }
   $container: null | HTMLElement = null
 
-  get shouldFix() {
-    return this.shouldFixLeft || this.shouldFixTop
+  get shouldFixTop() {
+    return this.rect.top <= this.props.minTopPos
   }
 
   get shouldFixLeft() {
     return this.rect.left <= this.props.minLeftPos
   }
 
-  get shouldFixTop() {
-    return this.rect.top <= this.props.minTopPos
+  get shouldFix() {
+    return this.shouldFixTop || this.shouldFixLeft
   }
 
   componentDidMount() {
@@ -80,10 +80,6 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
-  handleContainerRef = ($node: null | HTMLElement) => {
-    this.$container = $node
-  }
-
   updateContainerRect($container: HTMLElement) {
     this.rect = $container.getBoundingClientRect()
   }
@@ -111,19 +107,6 @@ class FixedBox extends Component<Props, State> {
     }
   }
 
-  updateLeftPos($child: HTMLElement) {
-    const { minLeftPos } = this.props
-    let posLeft: number
-
-    if (this.shouldFixLeft) {
-      posLeft = minLeftPos
-    } else {
-      posLeft = this.shouldFixTop ? this.rect.left : 0
-    }
-
-    $child.style.left = `${posLeft}px`
-  }
-
   updateTopPos($child: HTMLElement) {
     const { minTopPos } = this.props
     let posTop: number
@@ -131,23 +114,42 @@ class FixedBox extends Component<Props, State> {
     if (this.shouldFixTop) {
       posTop = minTopPos
     } else {
-      posTop = this.shouldFixLeft ? this.rect.top : 0
+      posTop = this.shouldFix ? this.rect.top : 0
     }
 
     $child.style.top = `${posTop}px`
   }
 
+  updateLeftPos($child: HTMLElement) {
+    const { minLeftPos } = this.props
+    let posLeft: number
+
+    if (this.shouldFixLeft) {
+      posLeft = minLeftPos
+    } else {
+      posLeft = this.shouldFix ? this.rect.left : 0
+    }
+
+    $child.style.left = `${posLeft}px`
+  }
+
   updatePosition = () => {
     const { $container } = this
+
     if (isNull($container)) return
 
     const $child: HTMLElement = ($container.firstElementChild: any)
+
     if (isNull($child)) return
 
     this.updateContainerRect($container)
     this.updateCssPosition($child)
     this.updateLeftPos($child)
     this.updateTopPos($child)
+  }
+
+  handleContainerRef = ($node: null | HTMLElement) => {
+    this.$container = $node
   }
 
   render() {
