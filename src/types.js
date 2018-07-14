@@ -7,11 +7,9 @@ export type Rect = {|
   left: number,
 |}
 
-export type Props = {|
-  className?: string,
-  minTopPos: number,
-  minRightPos: number,
-  minBottomPos: number,
-  minLeftPos: number,
-  children: React$Node | ((isFixed: boolean) => React$Node),
+export type Edges = {|
+  top: number,
+  right: number,
+  bottom: number,
+  left: number,
 |}

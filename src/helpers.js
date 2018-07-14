@@ -1,5 +1,5 @@
 /* @flow */
-import type { Rect, Props } from './types'
+import type { Rect, Edges } from './types'
 
 export function isFunc(arg: mixed): boolean %checks {
   return typeof arg === 'function'
@@ -9,50 +9,50 @@ export function isNull(arg: mixed): boolean %checks {
   return arg === null
 }
 
-export function shouldFixTop(props: Props, rect: Rect): boolean {
-  return rect.top < props.minTopPos
+export function shouldFixTop(edges: Edges, rect: Rect): boolean {
+  return rect.top <= edges.top
 }
 
-export function shouldFixRight(props: Props, rect: Rect): boolean {
-  return rect.right < props.minRightPos
+export function shouldFixRight(edges: Edges, rect: Rect): boolean {
+  return rect.right <= edges.right
 }
 
-export function shouldFixBottom(props: Props, rect: Rect): boolean {
-  return rect.bottom < props.minBottomPos
+export function shouldFixBottom(edges: Edges, rect: Rect): boolean {
+  return rect.bottom <= edges.bottom
 }
 
-export function shouldFixLeft(props: Props, rect: Rect): boolean {
-  return rect.left < props.minLeftPos
+export function shouldFixLeft(edges: Edges, rect: Rect): boolean {
+  return rect.left <= edges.left
 }
 
-export function shouldFix(props: Props, rect: Rect): boolean {
+export function shouldFix(edges: Edges, rect: Rect): boolean {
   return (
-    shouldFixTop(props, rect) ||
-    shouldFixRight(props, rect) ||
-    shouldFixBottom(props, rect) ||
-    shouldFixLeft(props, rect)
+    shouldFixTop(edges, rect) ||
+    shouldFixRight(edges, rect) ||
+    shouldFixBottom(edges, rect) ||
+    shouldFixLeft(edges, rect)
   )
 }
 
-export function getShiftX(props: Props, rect: Rect): number {
-  if (shouldFixLeft(props, rect)) {
-    return props.minLeftPos - rect.left
+export function getShiftX(edges: Edges, rect: Rect): number {
+  if (shouldFixLeft(edges, rect)) {
+    return edges.left - rect.left
   }
 
-  if (shouldFixRight(props, rect)) {
-    return rect.right - props.minRightPos
+  if (shouldFixRight(edges, rect)) {
+    return rect.right - edges.right
   }
 
   return 0
 }
 
-export function getShiftY(props: Props, rect: Rect): number {
-  if (shouldFixTop(props, rect)) {
-    return props.minTopPos - rect.top
+export function getShiftY(edges: Edges, rect: Rect): number {
+  if (shouldFixTop(edges, rect)) {
+    return edges.top - rect.top
   }
 
-  if (shouldFixBottom(props, rect)) {
-    return rect.bottom - props.minBottomPos
+  if (shouldFixBottom(edges, rect)) {
+    return rect.bottom - edges.bottom
   }
 
   return 0

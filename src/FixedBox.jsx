@@ -1,7 +1,7 @@
 /* @flow */
 import React, { Component } from 'react'
 
-import type { Rect, Props } from './types'
+import type { Edges } from './types'
 import {
   isNull,
   isFunc,
@@ -16,18 +16,27 @@ const events = {
   SCROLL: 'scroll',
   RESIZE: 'resize',
 }
+const defaultEdges: Edges = {
+  top: -Infinity,
+  right: -Infinity,
+  bottom: -Infinity,
+  left: -Infinity,
+}
 
 type State = {|
   isFixed: boolean,
 |}
 
+type Props = {|
+  edges: Edges,
+  className?: string,
+  children: React$Node | ((isFixed: boolean) => React$Node),
+|}
+
 class FixedBox extends Component<Props, State> {
   static defaultProps = {
     className: '',
-    minTopPos: -Infinity,
-    minRightPos: -Infinity,
-    minBottomPos: -Infinity,
-    minLeftPos: -Infinity,
+    edges: {},
   }
 
   state = {
@@ -63,17 +72,15 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
-  updateState(rect: Rect) {
-    const { state, props } = this
-    const shouldBeFixed = shouldFix(props, rect)
-
-    if (state.isFixed !== shouldBeFixed) {
+  updateState(shouldBeFixed: boolean) {
+    if (this.state.isFixed !== shouldBeFixed) {
       this.setState({ isFixed: shouldBeFixed })
     }
   }
 
   updatePosition = () => {
     const { props, $container } = this
+    const edges = Object.assign({}, defaultEdges, props.edges)
 
     if (isNull($container)) return
 
@@ -82,10 +89,15 @@ class FixedBox extends Component<Props, State> {
     if (isNull($child)) return
 
     const rect = getChildRect($container, $child)
-    const shiftX = getShiftX(props, rect)
-    const shiftY = getShiftY(props, rect)
+    const shouldBeFixed = shouldFix(edges, rect)
 
-    this.updateState(rect)
+    this.updateState(shouldBeFixed)
+
+    if (!shouldBeFixed) return
+
+    const shiftX = getShiftX(edges, rect)
+    const shiftY = getShiftY(edges, rect)
+
     $child.style.transform = `translate(${shiftX}px, ${shiftY}px)`
   }
 
