@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [0.2.0 - 2018-07.14]
+
+- Change prop types
+- Add props for right and bottom positions
+- Refactoring
+
 ### [0.1.3 - 2018-07.03]
 
 - Changed build config. Now the `es` build of the library properly compiles to es5 code, but with ES6 modules
