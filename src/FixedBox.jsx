@@ -1,36 +1,42 @@
 /* @flow */
 import React, { Component } from 'react'
 
-import { isNull, isFunc, isNumber } from './helpers'
+import type { Edges } from './types'
+import { isNull, isFunc, getShiftX, getShiftY, getChildRect } from './helpers'
 
 const ERROR_PREFIX = '[FixedBox]'
 const events = {
   SCROLL: 'scroll',
   RESIZE: 'resize',
 }
-
-type Props = {|
-  className?: string,
-  minTopPos: number,
-  minLeftPos: number,
-  children: React$Node | ((isFixed: boolean) => React$Node),
-|}
+const defaultEdges = {
+  top: -Infinity,
+  right: -Infinity,
+  bottom: -Infinity,
+  left: -Infinity,
+}
 
 type State = {|
   isFixed: boolean,
 |}
 
+type $Maybe<Obj: {}> = $ObjMap<Obj, <V>(V) => ?V>
+
+type Props = {|
+  className?: string,
+  edges: $Maybe<Edges>,
+  children: React$Node | ((isFixed: boolean) => React$Node),
+|}
+
 class FixedBox extends Component<Props, State> {
   static defaultProps = {
     className: '',
-    minTopPos: -Infinity,
-    minLeftPos: -Infinity,
+    edges: {},
   }
 
   state = {
     isFixed: false,
   }
-
   $container: null | HTMLElement = null
 
   componentDidMount() {
@@ -61,60 +67,30 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
-  handleContainerRef = ($node: null | HTMLElement) => {
-    this.$container = $node
-  }
-
   updatePosition = () => {
-    const { $container } = this
+    const { state, props, $container } = this
+
     if (isNull($container)) return
 
-    // $FlowFixMe
-    const $child = ($container.firstElementChild: HTMLElement)
+    const $child: HTMLElement | null = ($container.firstElementChild: any)
+
     if (isNull($child)) return
 
-    const { isFixed } = this.state
-    const { minTopPos, minLeftPos } = this.props
-    const { top, left } = $container.getBoundingClientRect()
-    const width = $child.offsetWidth
-    const height = $child.offsetHeight
-    const shouldFixTop = top <= minTopPos
-    const shouldFixLeft = left <= minLeftPos
-    const shouldFix = shouldFixTop || shouldFixLeft
+    const edges = (Object.assign({}, defaultEdges, props.edges): any)
+    const rect = getChildRect($container, $child)
+    const shiftX = getShiftX(edges, rect)
+    const shiftY = getShiftY(edges, rect)
+    const isFixed = shiftX !== 0 || shiftY !== 0
 
-    let position
-    let posTop
-    let posLeft
-
-    if (shouldFix) {
-      position = 'fixed'
-      $container.style.width = `${width}px`
-      $container.style.height = `${height}px`
-    } else {
-      position = 'relative'
-      $container.style.width = ''
-      $container.style.height = ''
+    if (isFixed !== state.isFixed) {
+      this.setState({ isFixed })
     }
 
-    if (shouldFixTop) {
-      posTop = isNumber(minTopPos) ? minTopPos : top
-    } else {
-      posTop = shouldFixLeft ? top : 0
-    }
+    $child.style.transform = `translate(${shiftX}px, ${shiftY}px)`
+  }
 
-    if (shouldFixLeft) {
-      posLeft = isNumber(minLeftPos) ? minLeftPos : left
-    } else {
-      posLeft = shouldFixTop ? left : 0
-    }
-
-    $child.style.position = position
-    $child.style.left = `${posLeft}px`
-    $child.style.top = `${posTop}px`
-
-    if (shouldFix !== isFixed) {
-      this.setState({ isFixed: shouldFix })
-    }
+  handleContainerRef = ($node: null | HTMLElement) => {
+    this.$container = $node
   }
 
   render() {
