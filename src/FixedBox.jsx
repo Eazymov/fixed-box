@@ -1,22 +1,21 @@
 /* @flow */
 import React, { Component } from 'react'
 
-import { isNull, isFunc } from './helpers'
+import type { Rect, Props } from './types'
+import {
+  isNull,
+  isFunc,
+  shouldFix,
+  getShiftX,
+  getShiftY,
+  getChildRect,
+} from './helpers'
 
 const ERROR_PREFIX = '[FixedBox]'
 const events = {
   SCROLL: 'scroll',
   RESIZE: 'resize',
 }
-
-type Props = {|
-  className?: string,
-  minTopPos: number,
-  minRightPos: number,
-  minBottomPos: number,
-  minLeftPos: number,
-  children: React$Node | ((isFixed: boolean) => React$Node),
-|}
 
 type State = {|
   isFixed: boolean,
@@ -34,38 +33,7 @@ class FixedBox extends Component<Props, State> {
   state = {
     isFixed: false,
   }
-  rect = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  }
   $container: null | HTMLElement = null
-
-  get shouldFixTop() {
-    return this.rect.top < this.props.minTopPos
-  }
-
-  get shouldFixRight() {
-    return this.rect.right < this.props.minRightPos
-  }
-
-  get shouldFixBottom() {
-    return this.rect.bottom < this.props.minBottomPos
-  }
-
-  get shouldFixLeft() {
-    return this.rect.left < this.props.minLeftPos
-  }
-
-  get shouldFix() {
-    return (
-      this.shouldFixTop ||
-      this.shouldFixRight ||
-      this.shouldFixBottom ||
-      this.shouldFixLeft
-    )
-  }
 
   componentDidMount() {
     const { updatePosition } = this
@@ -95,71 +63,29 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
-  updateRects($container: HTMLElement, $child: HTMLElement) {
-    const containerRect = $container.getBoundingClientRect()
-    const { left, bottom } = containerRect
-    const rect = {
-      top: containerRect.top,
-      right: window.innerWidth - (left + $child.offsetWidth),
-      bottom: window.innerHeight - bottom,
-      left: containerRect.left,
+  updateState(rect: Rect) {
+    const { state, props } = this
+    const shouldBeFixed = shouldFix(props, rect)
+
+    if (state.isFixed !== shouldBeFixed) {
+      this.setState({ isFixed: shouldBeFixed })
     }
-
-    this.rect = rect
-  }
-
-  updateState() {
-    const { shouldFix } = this
-    const { isFixed } = this.state
-
-    if (isFixed !== shouldFix) {
-      this.setState({ isFixed: shouldFix })
-    }
-  }
-
-  getShiftY() {
-    const { rect, props } = this
-
-    if (this.shouldFixTop) {
-      return props.minTopPos - rect.top
-    }
-
-    if (this.shouldFixBottom) {
-      return rect.bottom - props.minBottomPos
-    }
-
-    return 0
-  }
-
-  getShiftX() {
-    const { rect, props } = this
-
-    if (this.shouldFixLeft) {
-      return props.minLeftPos - rect.left
-    }
-
-    if (this.shouldFixRight) {
-      return rect.right - props.minRightPos
-    }
-
-    return 0
   }
 
   updatePosition = () => {
-    const { $container } = this
+    const { props, $container } = this
 
     if (isNull($container)) return
 
-    const $child: HTMLElement = ($container.firstElementChild: any)
+    const $child: HTMLElement | null = ($container.firstElementChild: any)
 
     if (isNull($child)) return
 
-    this.updateRects($container, $child)
-    this.updateState()
+    const rect = getChildRect($container, $child)
+    const shiftX = getShiftX(props, rect)
+    const shiftY = getShiftY(props, rect)
 
-    const shiftX = this.getShiftX()
-    const shiftY = this.getShiftY()
-
+    this.updateState(rect)
     $child.style.transform = `translate(${shiftX}px, ${shiftY}px)`
   }
 
