@@ -48,16 +48,18 @@ FixedBox container element class name\
 **type**: `string` \
 **required**: none
 
-### minTopPos
+### edges
 
-Minimal top position for the child element\
-**type**: `number` \
-**required**: none
-
-### minLeftPos
-
-Minimal left position for the child element\
-**type**: `number` \
+Minimal positions for the child element\
+**type**:
+```javascript
+{
+  top?: number,
+  right?: number,
+  bottom?: number,
+  left?: number,
+}
+```
 **required**: none
 
 ### children
