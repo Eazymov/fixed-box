@@ -32,20 +32,18 @@ class FixedBox extends Component<Props, State> {
   }
   rect = {
     top: 0,
-    left: 0,
     right: 0,
-    width: 0,
     bottom: 0,
-    height: 0,
+    left: 0,
   }
   $container: null | HTMLElement = null
 
   get shouldFixTop() {
-    return this.rect.top <= this.props.minTopPos
+    return this.rect.top < this.props.minTopPos
   }
 
   get shouldFixLeft() {
-    return this.rect.left <= this.props.minLeftPos
+    return this.rect.left < this.props.minLeftPos
   }
 
   get shouldFix() {
@@ -80,57 +78,50 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
+  updateRects($container: HTMLElement, $child: HTMLElement) {
+    const containerRect = $container.getBoundingClientRect()
+    const { left, bottom } = containerRect
+    const rect = {
+      top: containerRect.top,
+      right: window.innerWidth - (left + $child.offsetWidth),
+      bottom: window.innerHeight - bottom,
+      left: containerRect.left,
+    }
+
+    this.rect = rect
+  }
+
+  updateState() {
+    const { shouldFix } = this
+    const { isFixed } = this.state
+
+    if (isFixed !== shouldFix) {
+      this.setState({ isFixed: shouldFix })
+    }
+  }
+
   updateContainerRect($container: HTMLElement) {
     this.rect = $container.getBoundingClientRect()
   }
 
-  updateCssPosition($child: HTMLElement) {
-    const { isFixed } = this.state
-    const { shouldFix, $container } = this
-
-    if (!$container) return
-    if (isFixed !== shouldFix) {
-      this.setState({ isFixed: shouldFix })
-    }
-
-    if (shouldFix) {
-      const width = $child.offsetWidth
-      const height = $child.offsetHeight
-
-      $child.style.position = 'fixed'
-      $container.style.width = `${width}px`
-      $container.style.height = `${height}px`
-    } else {
-      $child.style.position = 'relative'
-      $container.style.width = ''
-      $container.style.height = ''
-    }
-  }
-
-  updateTopPos($child: HTMLElement) {
-    const { minTopPos } = this.props
-    let posTop: number
+  getShiftY() {
+    const { rect, props } = this
 
     if (this.shouldFixTop) {
-      posTop = minTopPos
-    } else {
-      posTop = this.shouldFix ? this.rect.top : 0
+      return props.minTopPos - rect.top
     }
 
-    $child.style.top = `${posTop}px`
+    return 0
   }
 
-  updateLeftPos($child: HTMLElement) {
-    const { minLeftPos } = this.props
-    let posLeft: number
+  getShiftX() {
+    const { rect, props } = this
 
     if (this.shouldFixLeft) {
-      posLeft = minLeftPos
-    } else {
-      posLeft = this.shouldFix ? this.rect.left : 0
+      return props.minLeftPos - rect.left
     }
 
-    $child.style.left = `${posLeft}px`
+    return 0
   }
 
   updatePosition = () => {
@@ -142,10 +133,13 @@ class FixedBox extends Component<Props, State> {
 
     if (isNull($child)) return
 
-    this.updateContainerRect($container)
-    this.updateCssPosition($child)
-    this.updateLeftPos($child)
-    this.updateTopPos($child)
+    this.updateRects($container, $child)
+    this.updateState()
+
+    const shiftX = this.getShiftX()
+    const shiftY = this.getShiftY()
+
+    $child.style.transform = `translate(${shiftX}px, ${shiftY}px)`
   }
 
   handleContainerRef = ($node: null | HTMLElement) => {
