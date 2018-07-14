@@ -12,6 +12,8 @@ const events = {
 type Props = {|
   className?: string,
   minTopPos: number,
+  minRightPos: number,
+  minBottomPos: number,
   minLeftPos: number,
   children: React$Node | ((isFixed: boolean) => React$Node),
 |}
@@ -24,6 +26,8 @@ class FixedBox extends Component<Props, State> {
   static defaultProps = {
     className: '',
     minTopPos: -Infinity,
+    minRightPos: -Infinity,
+    minBottomPos: -Infinity,
     minLeftPos: -Infinity,
   }
 
@@ -42,12 +46,25 @@ class FixedBox extends Component<Props, State> {
     return this.rect.top < this.props.minTopPos
   }
 
+  get shouldFixRight() {
+    return this.rect.right < this.props.minRightPos
+  }
+
+  get shouldFixBottom() {
+    return this.rect.bottom < this.props.minBottomPos
+  }
+
   get shouldFixLeft() {
     return this.rect.left < this.props.minLeftPos
   }
 
   get shouldFix() {
-    return this.shouldFixTop || this.shouldFixLeft
+    return (
+      this.shouldFixTop ||
+      this.shouldFixRight ||
+      this.shouldFixBottom ||
+      this.shouldFixLeft
+    )
   }
 
   componentDidMount() {
@@ -100,15 +117,15 @@ class FixedBox extends Component<Props, State> {
     }
   }
 
-  updateContainerRect($container: HTMLElement) {
-    this.rect = $container.getBoundingClientRect()
-  }
-
   getShiftY() {
     const { rect, props } = this
 
     if (this.shouldFixTop) {
       return props.minTopPos - rect.top
+    }
+
+    if (this.shouldFixBottom) {
+      return rect.bottom - props.minBottomPos
     }
 
     return 0
@@ -119,6 +136,10 @@ class FixedBox extends Component<Props, State> {
 
     if (this.shouldFixLeft) {
       return props.minLeftPos - rect.left
+    }
+
+    if (this.shouldFixRight) {
+      return rect.right - props.minRightPos
     }
 
     return 0
