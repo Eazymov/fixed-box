@@ -25,15 +25,6 @@ export function shouldFixLeft(edges: Edges, rect: Rect): boolean {
   return rect.left <= edges.left
 }
 
-export function shouldFix(edges: Edges, rect: Rect): boolean {
-  return (
-    shouldFixTop(edges, rect) ||
-    shouldFixRight(edges, rect) ||
-    shouldFixBottom(edges, rect) ||
-    shouldFixLeft(edges, rect)
-  )
-}
-
 export function getShiftX(edges: Edges, rect: Rect): number {
   if (shouldFixLeft(edges, rect)) {
     return edges.left - rect.left

@@ -2,21 +2,14 @@
 import React, { Component } from 'react'
 
 import type { Edges } from './types'
-import {
-  isNull,
-  isFunc,
-  shouldFix,
-  getShiftX,
-  getShiftY,
-  getChildRect,
-} from './helpers'
+import { isNull, isFunc, getShiftX, getShiftY, getChildRect } from './helpers'
 
 const ERROR_PREFIX = '[FixedBox]'
 const events = {
   SCROLL: 'scroll',
   RESIZE: 'resize',
 }
-const defaultEdges: Edges = {
+const defaultEdges = {
   top: -Infinity,
   right: -Infinity,
   bottom: -Infinity,
@@ -27,9 +20,11 @@ type State = {|
   isFixed: boolean,
 |}
 
+type $Maybe<Obj: {}> = $ObjMap<Obj, <V>(V) => ?V>
+
 type Props = {|
-  edges: Edges,
   className?: string,
+  edges: $Maybe<Edges>,
   children: React$Node | ((isFixed: boolean) => React$Node),
 |}
 
@@ -72,15 +67,8 @@ class FixedBox extends Component<Props, State> {
     this.updatePosition()
   }
 
-  updateState(shouldBeFixed: boolean) {
-    if (this.state.isFixed !== shouldBeFixed) {
-      this.setState({ isFixed: shouldBeFixed })
-    }
-  }
-
   updatePosition = () => {
-    const { props, $container } = this
-    const edges = Object.assign({}, defaultEdges, props.edges)
+    const { state, props, $container } = this
 
     if (isNull($container)) return
 
@@ -88,15 +76,15 @@ class FixedBox extends Component<Props, State> {
 
     if (isNull($child)) return
 
+    const edges = (Object.assign({}, defaultEdges, props.edges): any)
     const rect = getChildRect($container, $child)
-    const shouldBeFixed = shouldFix(edges, rect)
-
-    this.updateState(shouldBeFixed)
-
-    if (!shouldBeFixed) return
-
     const shiftX = getShiftX(edges, rect)
     const shiftY = getShiftY(edges, rect)
+    const isFixed = shiftX !== 0 || shiftY !== 0
+
+    if (isFixed !== state.isFixed) {
+      this.setState({ isFixed })
+    }
 
     $child.style.transform = `translate(${shiftX}px, ${shiftY}px)`
   }
